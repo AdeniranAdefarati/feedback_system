@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #7226ff, #4b00c2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #fff;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    h2 {
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 15px;
+      opacity: 0.9;
+    }
+
+    .btn-container {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .btn {
+      display: inline-block;
+      text-decoration: none;
+      color: white;
+      background: #7226ff;
+      padding: 12px 25px;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: 0.3s;
+      border: 2px solid transparent;
+    }
+
+    .btn:hover {
+      background: #4b00c2;
+      border-color: #fff;
+    }
+
+    .logout-btn {
+      background: #ff4d4d;
+    }
+
+    .logout-btn:hover {
+      background: #e63939;
+    }
+
+    footer {
+      margin-top: 25px;
+      font-size: 13px;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Welcome, {{ name }} 👋</h2>
+    <p>You’re logged in to the <strong>User Suggestion & Complaint System</strong>.</p>
+    <p>From here, you can submit complaints, track your feedback, or log out.</p>
+
+    <div class="btn-container">
+      <a href="{{ url_for('complaints') }}" class="btn">Submit a Complaint</a>
+      <a href="{{ url_for('logout') }}" class="btn logout-btn">Logout</a>
+    </div>
+
+    <footer>© 2025 BagIn Feedback System | Powered by Flask</footer>
+  </div>
+</body>
+</html>

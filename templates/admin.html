@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard – BagIn Feedback</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f6ff;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: linear-gradient(135deg, #7226ff, #4b00c2);
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+
+    header a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 15px;
+      border-radius: 6px;
+      transition: background 0.3s ease;
+    }
+
+    header a:hover {
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      color: #4b00c2;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 15px;
+    }
+
+    .filter-bar input, .filter-bar select {
+      padding: 10px 14px;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    .filter-bar input:focus, .filter-bar select:focus {
+      border-color: #7226ff;
+      box-shadow: 0 0 0 2px rgba(114, 38, 255, 0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 12px 15px;
+      border-bottom: 1px solid #eee;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f3f0ff;
+      color: #4b00c2;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background: #faf7ff;
+    }
+
+    .status {
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 6px 10px;
+      display: inline-block;
+      text-transform: capitalize;
+      white-space: nowrap;
+    }
+
+    .status.Pending { color: #856404; background: #fff3cd; }
+    .status.Resolved { color: #155724; background: #d4edda; }
+    .status.Rejected { color: #721c24; background: #f8d7da; }
+    .status.In\ Progress { color: #004085; background: #cce5ff; }
+
+    td.actions { vertical-align: middle; }
+
+    .actions-wrap {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 100px;
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: transform .05s ease, opacity .2s ease;
+    }
+
+    .action-btn:active { transform: translateY(1px); }
+    .action-resolve { background: #28a745; }
+    .action-pending { background: #ffc107; color: #333; }
+    .action-reject { background: #dc3545; }
+    .action-btn:hover { opacity: .9; }
+
+    /* Message clip styling */
+    .desc-clip {
+      max-width: 480px;
+      white-space: normal;
+      word-wrap: break-word;
+      overflow-wrap: anywhere;
+      line-height: 1.5;
+      color: #333;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .desc-clip:hover {
+      color: #7226ff;
+      text-decoration: underline;
+    }
+
+    .no-data {
+      text-align: center;
+      color: #999;
+      font-style: italic;
+      padding: 30px 0;
+    }
+
+    /* Modal popup */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #fff;
+      border-radius: 10px;
+      padding: 25px 30px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80%;
+      overflow-y: auto;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .modal-header h3 {
+      color: #4b00c2;
+      margin: 0;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: #4b00c2;
+    }
+
+    @media (max-width: 900px) {
+      .filter-bar { flex-direction: column; align-items: stretch; }
+      .actions-wrap { gap: 10px; justify-content: center; }
+      .action-btn { min-width: 90px; height: 34px; font-size: .85rem; }
+      th, td { font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>BagIn Admin Dashboard</h1>
+    <a href="{{ url_for('logout') }}">Logout</a>
+  </header>
+
+  <div class="container">
+    <h2>All User Feedback & Complaints</h2>
+
+    <div class="filter-bar">
+      <input type="text" id="searchInput" placeholder="Search by title, description, or user...">
+      <select id="statusFilter">
+        <option value="all">All Status</option>
+        <option value="Pending">Pending</option>
+        <option value="Resolved">Resolved</option>
+        <option value="Rejected">Rejected</option>
+        <option value="In Progress">In Progress</option>
+      </select>
+    </div>
+
+    {% if complaints %}
+    <table id="complaintsTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in complaints %}
+        <tr>
+          <td>{{ c.id }}</td>
+          <td>{{ c.user_id }}</td>
+          <td>{{ c.title }}</td>
+          <td><span class="desc-clip" onclick="openModal(`{{ c.title }}`, `{{ c.description }}`)">{{ c.description[:60] }}{% if c.description|length > 60 %}...{% endif %}</span></td>
+          <td><span class="status {{ c.status }}">{{ c.status }}</span></td>
+          <td>{{ c.date_created.strftime("%Y-%m-%d %H:%M") }}</td>
+          <td class="actions">
+            <div class="actions-wrap">
+              <a href="{{ url_for('update_status', complaint_id=c.id, status='Resolved') }}" class="action-btn action-resolve">Resolve</a>
+              <a href="{{ url_for('update_status', complaint_id=c.id, status='Pending') }}" class="action-btn action-pending">Pending</a>
+              <a href="{{ url_for('update_status', complaint_id=c.id, status='Rejected') }}" class="action-btn action-reject">Reject</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div class="no-data">No feedback or complaints found.</div>
+    {% endif %}
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="messageModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Message</h3>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      <p id="modalBody"></p>
+    </div>
+  </div>
+
+  <script>
+    // Search + Filter
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const table = document.getElementById('complaintsTable');
+    const rows = table.getElementsByTagName('tr');
+
+    function filterTable() {
+      const searchValue = searchInput.value.toLowerCase();
+      const statusValue = statusFilter.value.toLowerCase();
+
+      for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        if (cells.length === 0) continue;
+
+        const title = cells[2].innerText.toLowerCase();
+        const desc = cells[3].innerText.toLowerCase();
+        const user = cells[1].innerText.toLowerCase();
+        const status = cells[4].innerText.toLowerCase();
+
+        const matchesSearch = title.includes(searchValue) || desc.includes(searchValue) || user.includes(searchValue);
+        const matchesStatus = (statusValue === 'all' || status === statusValue);
+
+        rows[i].style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+      }
+    }
+
+    searchInput.addEventListener('keyup', filterTable);
+    statusFilter.addEventListener('change', filterTable);
+
+    // Modal logic
+    const modal = document.getElementById('messageModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+
+    function openModal(title, message) {
+      modalTitle.textContent = title;
+      modalBody.textContent = message;
+      modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+      modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+      if (event.target === modal) closeModal();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local SQLite database
+feedback.db
+*.sqlite3
+
+# Environment and config files
+.env
