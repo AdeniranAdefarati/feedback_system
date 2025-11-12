@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask_mail import Mail, Message
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -11,6 +12,17 @@ app.secret_key = "supersecretkey"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///feedback.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+# ===========================
+# EMAIL CONFIGURATION
+# ===========================
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'adefaratiadeniran@gmail.com'       # ✏️ replace with your Gmail
+app.config['MAIL_PASSWORD'] = 'ikoljscizblafijm'          # ✏️ generated app password
+app.config['MAIL_DEFAULT_SENDER'] = ('BagIn Support', 'adefaratiadeniran@gmail.com')
+
+mail = Mail(app)
 
 # ===========================
 # MODELS
