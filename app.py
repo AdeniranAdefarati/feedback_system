@@ -188,6 +188,55 @@ def submit_feedback():
     # Redirect to BagIn website thankyou page
     return redirect("http://127.0.0.1:5501/thankyou.html")
 
+# ===========================
+# CONTACT FORM (BagIn Website)
+# ===========================
+@app.route('/submit_contact', methods=['POST'])
+def submit_contact():
+    name = request.form.get('name')
+    email = request.form.get('email')
+    message = request.form.get('message')
+
+    # Save to database
+    new_complaint = Complaint(
+        user_id=1,  # Default admin user
+        title=f"Feedback from {name}",
+        description=f"Email: {email}\n\nMessage:\n{message}",
+        status="Pending"
+    )
+    db.session.add(new_complaint)
+    db.session.commit()
+
+    # ======================
+    # Send notification email
+    # ======================
+    try:
+        msg = Message(
+            subject=f"📩 New Feedback from {name}",
+            sender=app.config['MAIL_DEFAULT_SENDER'],
+            recipients=["adefaratiadeniran@gmail.com"],  # Your receiving email
+            body=f"""
+Hello BagIn Admin,
+
+You just got a new message from your website contact form.
+
+-------------------------------------
+Name: {name}
+Email: {email}
+Message:
+{message}
+-------------------------------------
+
+Go check your admin dashboard for details.
+            """
+        )
+        mail.send(msg)
+        print("✅ Email sent successfully!")
+    except Exception as e:
+        print("❌ Email failed:", e)
+
+    # Redirect user to thank-you page on your BagIn website
+    return redirect("http://127.0.0.1:5500/Bagin%20Website/thankyou.html")
 
 # ===========================
 # RUN THE APP
