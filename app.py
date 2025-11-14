@@ -1,26 +1,30 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 from flask_mail import Mail, Message
+from datetime import datetime
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = "supersecretkey"
 
-# ===========================
+# ====================================================
 # DATABASE CONFIGURATION
-# ===========================
+# ====================================================
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///feedback.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db = SQLAlchemy(app)
-# ===========================
+
+# ====================================================
 # EMAIL CONFIGURATION
-# ===========================
+# ====================================================
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'adefaratiadeniran@gmail.com'       # ✏️ replace with your Gmail
-app.config['MAIL_PASSWORD'] = 'ikoljscizblafijm'          # ✏️ generated app password
-app.config['MAIL_DEFAULT_SENDER'] = ('BagIn Support', 'adefaratiadeniran@gmail.com')
+app.config['MAIL_USERNAME'] = 'adefaratideniran@gmail.com'   # your Gmail
+app.config['MAIL_PASSWORD'] = 'your-app-password-here'        # replace safely
+app.config['MAIL_DEFAULT_SENDER'] = ('BagIn Support', 'adefaratideniran@gmail.com')
 
 mail = Mail(app)
 
@@ -186,57 +190,61 @@ def submit_feedback():
     db.session.commit()
 
     # Redirect to BagIn website thankyou page
-    return redirect("http://127.0.0.1:5501/thankyou.html")
+    return redirect("http://127.0.0.1:5501/Bagin_Website/thankyou.html")
 
-# ===========================
-# CONTACT FORM (BagIn Website)
-# ===========================
+
 @app.route('/submit_contact', methods=['POST'])
 def submit_contact():
-    name = request.form.get('name')
-    email = request.form.get('email')
-    message = request.form.get('message')
+    data = request.get_json()
+    name = data.get('name')
+    email = data.get('email')
+    message = data.get('message')
 
-    # Save to database
+    # Store as complaint (optional)
     new_complaint = Complaint(
-        user_id=1,  # Default admin user
+        user_id=1,
         title=f"Feedback from {name}",
-        description=f"Email: {email}\n\nMessage:\n{message}",
-        status="Pending"
+        description=f"Email: {email}\n\nMessage: {message}"
     )
     db.session.add(new_complaint)
     db.session.commit()
 
-    # ======================
-    # Send notification email
-    # ======================
+    # Send email
     try:
         msg = Message(
             subject=f"📩 New Feedback from {name}",
-            sender=app.config['MAIL_DEFAULT_SENDER'],
-            recipients=["adefaratiadeniran@gmail.com"],  # Your receiving email
-            body=f"""
-Hello BagIn Admin,
-
-You just got a new message from your website contact form.
-
--------------------------------------
-Name: {name}
-Email: {email}
-Message:
-{message}
--------------------------------------
-
-Go check your admin dashboard for details.
-            """
+            recipients=["adefaratiadeniran@gmail.com"],
+            body=f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
         )
         mail.send(msg)
         print("✅ Email sent successfully!")
     except Exception as e:
-        print("❌ Email failed:", e)
+        print(f"❌ Email failed: {e}")
 
-    # Redirect user to thank-you page on your BagIn website
-    return redirect("http://127.0.0.1:5500/Bagin%20Website/thankyou.html")
+    return {"success": True}
+
+# ===========================
+# MANUAL TEST EMAIL ROUTE
+# ===========================
+@app.route('/test_mail')
+def test_mail():
+    try:
+        print("📨 Trying to send test email via Gmail...")
+        msg = Message(
+            subject="✅ Flask-Mail Test",
+            sender=app.config['MAIL_DEFAULT_SENDER'],
+            recipients=["adefaratiadeniran@gmail.com"],
+            body="This is a test email from your BagIn feedback system."
+        )
+        mail.send(msg)
+        print("✅ Test email sent successfully!")
+        return "✅ Test email sent successfully!"
+    except Exception as e:
+        import traceback
+        print("❌ Email failed:")
+        traceback.print_exc()
+        return f"❌ Email failed: {e}"
+
 
 # ===========================
 # RUN THE APP
